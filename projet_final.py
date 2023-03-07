@@ -1,71 +1,85 @@
+'''  ____                       __                   _____                ___                              
+    /\  _`\                    /\ \                 /\  __`\             /\_ \      __                     
+    \ \ \L\ \    ___     ___   \ \ \/'\             \ \ \/\ \     ___    \//\ \    /\_\     ___       __   
+     \ \  _ <'  / __`\  / __`\  \ \ , <     _______  \ \ \ \ \  /' _ `\    \ \ \   \/\ \  /' _ `\   /'__`\ 
+      \ \ \L\ \/\ \L\ \/\ \L\ \  \ \ \\`\  /\______\  \ \ \_\ \ /\ \/\ \    \_\ \_  \ \ \ /\ \/\ \ /\  __/ 
+       \ \____/\ \____/\ \____/   \ \_\ \_\\/______/   \ \_____\\ \_\ \_\   /\____\  \ \_\\ \_\ \_\\ \____\
+        \/___/  \/___/  \/___/     \/_/\/_/             \/_____/ \/_/\/_/   \/____/   \/_/ \/_/\/_/ \/____/
+                                                                                                       
+
+____ _   _ ____ ___ ____ _  _ ____    ___  ____    ____ _  _ ____ _  _ ____ _ _    _    ____ _  _ ____ ____
+[__   \_/  [__   |  |___ |\/| |___    |  \ |___    [__  |  | |__/ |  | |___ | |    |    |__| |\ | |    |___
+___]   |   ___]  |  |___ |  | |___    |__/ |___    ___] |__| |  \  \/  |___ | |___ |___ |  | | \| |___ |___'''
+
+
+
 #importation des packages python
-import requests
+import requests 
 from bs4 import BeautifulSoup
 import csv 
 
-
-#création d'une fonction permettant de collecter toutes les informations voulues sur la page d'un produit (livre)
-def extraction_donnee_livre (livre_url):
-    response = requests.get(livre_url)
+#création fonction pour extraction de donnée par livre
+def extraction_donnée_livre(url_livre):
+    #création d'une fonction recoltant les données d'un seul livre
+    response = requests.get(url_livre)  
     page = response.content
-    soup = BeautifulSoup(page, "html.parser")
 
-    page_product_url = response.url
-   
-    title = soup.h1.get_text()
+    #parsage du script html
+    soup = BeautifulSoup(page, "html.parser") 
 
-    categorie_tag = soup.find("ul", {"class":"breadcrumb"}).find_all("a")
-    categorie = categorie_tag[-1].get_text()
+    #collecte des informations par BeautifulSoup
+    url_produit = url_livre
+    #upc = soup.find("table",{"class":"table table-striped"}).find_all("td")[0].get_text()
+    titre = soup.h1.get_text()
+    prix_avec_taxes = soup.find("table", {"class":"table-striped"}).find_all("td")[3].get_text()
+    prix_sans_taxes = soup.find("table", {"class":"table-striped"}).find_all("td")[2].get_text()
+    nombre_disponible = soup.find("table", {"class":"table-striped"}).find_all("td")[5].get_text()
+    description_produit = soup.find("h2").find_next("p").get_text()
+    categorie = soup.find("ul", {"class":"breadcrumb"}).find_all("a")[2].get_text()
+    note_evaluation = soup.find("table", {"class":"table-striped"}).find_all("td")[6].get_text()
 
-    product_description = soup.find("div", {"id": "product_description"}).find_next("p").get_text()
+    base_image_url = soup.find("div", {"class":"item active"}).find_next("img")["src"]
+    image_url = "http://books.toscrape.com" + base_image_url
 
-    product_informations = soup.find("table", {"class": "table table-striped"})
-    liste_product_information = product_informations.find_all("td")
-    upc = liste_product_information[0].get_text()
-    price_including_tax = liste_product_information[3].get_text()
-    price_excluding_tax = liste_product_information[2].get_text()
-    number_available = liste_product_information[5].get_text()
-    review_rating = liste_product_information[6].get_text()
-
-    image_livre = soup.find("div", {"class":"item active"}).find_next('img')
-    image_url = image_livre['src']
-
-    #création d'un dictionnaire contenant les informations d'un livre
-    informations_livre = {
-        'url_produit' : page_product_url,
-        "titre" : title,
-        "categorie" : categorie,
-        "description" : product_description,
-        "code_produit" : upc,
-        "prix_avec_tax" : price_including_tax,
-        "prix_sans_tax" : price_excluding_tax,
-        "stock" : number_available,
-        "note_evaluation" : review_rating,
-        "url_image" : image_url,
+    #creation d'un dictionnaire pour enregister les données du livre
+    donnee_livre = {
+        "url_produit":url_produit,
+        #"upc":upc,
+        "titre":titre,
+        "prix_avec_taxes":prix_avec_taxes,
+        "prix_sans_taxes":prix_sans_taxes,
+        "nombre_disponibilite":nombre_disponible,
+        "description_produit":description_produit,
+        "nom_categorie":categorie,
+        "note_evaluation":note_evaluation,
+        "url_image":image_url
     }
 
-    return informations_livre
+    return donnee_livre
 
-#Création d'une liste pour stocker toutes les informations des livres
-informations_completes_livres = []
+#création d'une liste de pages de toute la catégorie mystery
+mystery = ["http://books.toscrape.com/catalogue/category/books/mystery_3/page-{}.html".format(i) for i in range(1,3)]
 
-#Création d'une boucle pour explorer toutes les pages du site
-for numero_page in range (1,51): #50 pages en tout 
-    url = "http://books.toscrape.com/catalogue/category/books_1/page-{numero_page}.html"
-    response = requests.get(url)
+#boucle à travers chaques pages de la catégorie mystery
+for i in mystery:
+    response = requests.get(i)
     page = response.content
     soup = BeautifulSoup(page, "html.parser")
-    print(numero_page)
+
+    #trouver tout les liens des livres sur chaques pages de la categorie
+    i_data = soup.find_all("h3")
+    for j in i_data:
+        infos = j.find("a")["href"]
+        url_livre = "http://books.toscrape.com/catalogue/" + infos
+    
+        # extraction_donnée_livre(url_livre)
 
 
 
 
-
-
-
-
-
-
+# #création d'un fichier CSV 
+# with open ("mystery.csv", "w" ) as csvfile:
+#     writer = csv.writer(csvfile)
 
 
 
