@@ -18,61 +18,50 @@ import requests
 from bs4 import BeautifulSoup
 import csv 
 
-#création fonction pour extraction de donnée par livre
-def extraction_donnée_livre(url_livre):
-    #création d'une fonction recoltant les données d'un seul livre
-    response = requests.get(url_livre)  
-    page = response.content
-
-    #parsage du script html
-    soup = BeautifulSoup(page, "html.parser") 
-
-    #collecte des informations par BeautifulSoup
-    url_produit = url_livre
-    #upc = soup.find("table",{"class":"table table-striped"}).find_all("td")[0].get_text()
-    titre = soup.h1.get_text()
-    prix_avec_taxes = soup.find("table", {"class":"table-striped"}).find_all("td")[3].get_text()
-    prix_sans_taxes = soup.find("table", {"class":"table-striped"}).find_all("td")[2].get_text()
-    nombre_disponible = soup.find("table", {"class":"table-striped"}).find_all("td")[5].get_text()
-    description_produit = soup.find("h2").find_next("p").get_text()
-    categorie = soup.find("ul", {"class":"breadcrumb"}).find_all("a")[2].get_text()
-    note_evaluation = soup.find("table", {"class":"table-striped"}).find_all("td")[6].get_text()
-
-    base_image_url = soup.find("div", {"class":"item active"}).find_next("img")["src"]
-    image_url = "http://books.toscrape.com" + base_image_url
-
-    #creation d'un dictionnaire pour enregister les données du livre
-    donnee_livre = {
-        "url_produit":url_produit,
-        #"upc":upc,
-        "titre":titre,
-        "prix_avec_taxes":prix_avec_taxes,
-        "prix_sans_taxes":prix_sans_taxes,
-        "nombre_disponibilite":nombre_disponible,
-        "description_produit":description_produit,
-        "nom_categorie":categorie,
-        "note_evaluation":note_evaluation,
-        "url_image":image_url
-    }
-
-    return donnee_livre
-
 #création d'une liste de pages de toute la catégorie mystery
-mystery = ["http://books.toscrape.com/catalogue/category/books/mystery_3/page-{}.html".format(i) for i in range(1,3)]
+travel = ["books.toscrape.com/catalogue/category/books/travel_2/index.html"]
+mystery = ["http://books.toscrape.com/catalogue/category/books/mystery_3/page-1.html","http://books.toscrape.com/catalogue/category/books/mystery_3/page-2.html"]
 
 #boucle à travers chaques pages de la catégorie mystery
 for i in mystery:
-    response = requests.get(i)
+    response = requests.get(mystery)
     page = response.content
     soup = BeautifulSoup(page, "html.parser")
-
+    print(page)
     #trouver tout les liens des livres sur chaques pages de la categorie
     i_data = soup.find_all("h3")
     for j in i_data:
         infos = j.find("a")["href"]
         url_livre = "http://books.toscrape.com/catalogue/" + infos
-    
-        # extraction_donnée_livre(url_livre)
+
+        #for k in url_livre:
+        # #collecte des informations par BeautifulSoup
+        # url_produit = url_livre
+        # upc = soup.find("table",{"class":"table table-striped"}).find_all("td")[0].get_text()
+        # titre = soup.h1.get_text()
+        # prix_avec_taxes = soup.find("table", {"class":"table-striped"}).find_all("td")[3].get_text()
+        # prix_sans_taxes = soup.find("table", {"class":"table-striped"}).find_all("td")[2].get_text()
+        # nombre_disponible = soup.find("table", {"class":"table-striped"}).find_all("td")[5].get_text()
+        # description_produit = soup.find("h2").find_next("p").get_text()
+        # categorie = soup.find("ul", {"class":"breadcrumb"}).find_all("a")[2].get_text()
+        # note_evaluation = soup.find("table", {"class":"table-striped"}).find_all("td")[6].get_text()
+
+        # base_image_url = soup.find("div", {"class":"item active"}).find_next("img")["src"]
+        # image_url = "http://books.toscrape.com" + base_image_url
+
+        # #creation d'un dictionnaire pour enregister les données du livre
+        # donnee_livre = {
+        #     "url_produit":url_produit,
+        #     "upc":upc,
+        #     "titre":titre,
+        #     "prix_avec_taxes":prix_avec_taxes,
+        #     "prix_sans_taxes":prix_sans_taxes,
+        #     "nombre_disponibilite":nombre_disponible,
+        #     "description_produit":description_produit,
+        #     "nom_categorie":categorie,
+        #     "note_evaluation":note_evaluation,
+        #     "url_image":image_url
+        # }
 
 
 
