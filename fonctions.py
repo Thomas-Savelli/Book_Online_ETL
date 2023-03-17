@@ -1,20 +1,8 @@
-'''  ____                       __                   _____                ___                              
-    /\  _`\                    /\ \                 /\  __`\             /\_ \      __                     
-    \ \ \L\ \    ___     ___   \ \ \/'\             \ \ \/\ \     ___    \//\ \    /\_\     ___       __   
-     \ \  _ <'  / __`\  / __`\  \ \ , <     _______  \ \ \ \ \  /' _ `\    \ \ \   \/\ \  /' _ `\   /'__`\ 
-      \ \ \L\ \/\ \L\ \/\ \L\ \  \ \ \\`\  /\______\  \ \ \_\ \ /\ \/\ \    \_\ \_  \ \ \ /\ \/\ \ /\  __/ 
-       \ \____/\ \____/\ \____/   \ \_\ \_\\/______/   \ \_____\\ \_\ \_\   /\____\  \ \_\\ \_\ \_\\ \____\
-        \/___/  \/___/  \/___/     \/_/\/_/             \/_____/ \/_/\/_/   \/____/   \/_/ \/_/\/_/ \/____/
-                                                                                                       
-
-____ _   _ ____ ___ ____ _  _ ____    ___  ____    ____ _  _ ____ _  _ ____ _ _    _    ____ _  _ ____ ____
-[__   \_/  [__   |  |___ |\/| |___    |  \ |___    [__  |  | |__/ |  | |___ | |    |    |__| |\ | |    |___
-___]   |   ___]  |  |___ |  | |___    |__/ |___    ___] |__| |  \  \/  |___ | |___ |___ |  | | \| |___ |___'''
-
 #importation package py 
 import requests
 from bs4 import BeautifulSoup
 import csv 
+
 
 url_test = "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html"
 
@@ -54,6 +42,7 @@ def get_url_categories(index_url):
     pages_categories = []
     #création d'une liste pour reconstruire les urls complétes des catégories
     pages_categories_full = []
+    categorie_names = []
     #Recuperer toutes les adresses urls des Categories
     infos_categories = soup.find("ul",{"class":"nav nav-list"}).find_all("a")
     #Création d'une boucle pour récupérer tout les "href" des balises <a>
@@ -64,18 +53,41 @@ def get_url_categories(index_url):
     for u in pages_categories :
         full_url = "http://books.toscrape.com/" + str(u)
         pages_categories_full.append(full_url)
-   
-    return pages_categories_full
+        categorie_names.append(nom)
+    
+    del pages_categories_full[0]
+
+    # while True :
+    #     for v in pages_categories_full :
+    #         next_response = requests.get(v)
+    #         next_pages = next_response.content
+    #         next_soup = BeautifulSoup(next_pages,"html.parser")
+    #         get_page_suivante = soup.find("li",{"class":"next"}).get("href")
+    #         pages_suivantes = full_url + str(get_page_suivante)
+    #         pages_categories_full.append(pages_suivantes)
+    
+    return pages_categories_full, categorie_names
 
 
+def get_all_books_url(url):
+    all_urls = []
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    # récupérer les livres de la page
+    page_urls = get_books_from_page(soup)
+    all_urls.extend(page_urls)
 
+    next_button = soup.find("li",{"class":"next"})
+    while next_button is not None:
+        index_url = ''
+        full_url = index_url + next_button.get('href')
+        response = requests.get(full_url)
+        soup = BeautifulSoup(response.content, 'html.parser')
 
+        # récupérer les livres de la page
+        page_urls = get_books_from_page(soup)
+        all_urls.extend(page_urls)
 
-
-
-
-# if __name__ == "__main__":
-#     product_page = "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
-#     #creation d'une liste pour les en-tête
-#     book_data = extract_book_data(product_page)
-#     print(book_data)
+        next_button = soup.find('li', {'class': 'next'})
+    
+    return all_urls
