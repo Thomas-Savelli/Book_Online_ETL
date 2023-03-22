@@ -1,7 +1,6 @@
 from fonctions import extract_book_data, get_url_categories, get_all_books_url
 from writer import write_csv
-import requests
-from bs4 import BeautifulSoup
+
 
 
 
@@ -22,11 +21,11 @@ if __name__ == '__main__':
     # Boucle pour trouver toutes les pages de livres dans les pages des categories
     for url in url_categories:
         books_urls = get_all_books_url(url)
-        print(books_urls)
+
 
         all_books_data = []
-        # for book_url in books_urls:
-        #     book_data = extract_book_data(book_url)
-        #     all_books_data.append(book_data)
+        for book_url in books_urls:
+            book_data = extract_book_data(book_url)
+            all_books_data.append(book_data)
          
         # write_csv('nomcategor', en_tete, all_books_data)
