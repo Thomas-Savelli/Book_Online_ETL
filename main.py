@@ -15,21 +15,18 @@ if __name__ == '__main__':
     index_url = "http://books.toscrape.com/index.html"
 
     # trouver les urls de toutes les catégories
-    #la liste url_category sert de repertoire principale pour trouver toutes les pages principales des categories
-    url_categories = get_url_categories(index_url)
-    
-    
-    
-
-    print(url_categories)
+    # la liste url_category sert de repertoire principale pour trouver toutes les pages principales des categories
+    # la liste categorie_names contient les noms des categories pour une utilisation futur avec les fichiers csv 
+    url_categories, categorie_names = get_url_categories(index_url)
 
     # Boucle pour trouver toutes les pages de livres dans les pages des categories
     for url in url_categories:
         books_urls = get_all_books_url(url)
+        print(books_urls)
+
         all_books_data = []
-        for book_url in books_urls:
-            book_data = extract_book_data(book_url)
-            all_books_data.append(book_data)
-        
-        print(all_books_data)
+        # for book_url in books_urls:
+        #     book_data = extract_book_data(book_url)
+        #     all_books_data.append(book_data)
+         
         # write_csv('nomcategor', en_tete, all_books_data)

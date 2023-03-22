@@ -1,4 +1,4 @@
-#importation package py 
+# importation package py 
 import requests
 from bs4 import BeautifulSoup
 import csv 
@@ -6,7 +6,7 @@ import csv
 
 url_test = "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html"
 
-#Fonction qui permets d'extraire les données d'un livre sur une page produit 
+# Fonction qui permets d'extraire les données d'un livre sur une page produit 
 def extract_book_data(book_url):
     response = requests.get(book_url)
     page = response.content
@@ -32,7 +32,7 @@ def extract_book_data(book_url):
 
     return donnee_livre
 
-#fonction qui permets de trouver les liens de la page index.html pour les differentes categories
+# Fonction qui permets de trouver les liens de la page index.html pour les differentes categories
 def get_url_categories(index_url):
     response = requests.get(index_url)
     page = response.content
@@ -53,41 +53,58 @@ def get_url_categories(index_url):
     for u in pages_categories :
         full_url = "http://books.toscrape.com/" + str(u)
         pages_categories_full.append(full_url)
-        categorie_names.append(nom)
-    
     del pages_categories_full[0]
-
-    # while True :
-    #     for v in pages_categories_full :
-    #         next_response = requests.get(v)
-    #         next_pages = next_response.content
-    #         next_soup = BeautifulSoup(next_pages,"html.parser")
-    #         get_page_suivante = soup.find("li",{"class":"next"}).get("href")
-    #         pages_suivantes = full_url + str(get_page_suivante)
-    #         pages_categories_full.append(pages_suivantes)
+    #recolter le nom des categorie dans une liste pour fichier csv 
+    for url in pages_categories_full:
+        path = url.split('//')[1].split('/')
+        category_name = path[4]
+        categorie_names.append(category_name)
     
     return pages_categories_full, categorie_names
 
-
+# fonction qui permet de trouver toutes les pages des catégories
 def get_all_books_url(url):
     all_urls = []
     response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
+    page = response.content
+    soup = BeautifulSoup(page, 'html.parser')
+
     # récupérer les livres de la page
-    page_urls = get_books_from_page(soup)
+    page_urls = get_books_from_page(url)
     all_urls.extend(page_urls)
 
+    # Visiter les pages suivantes 
     next_button = soup.find("li",{"class":"next"})
+
     while next_button is not None:
-        index_url = ''
-        full_url = index_url + next_button.get('href')
-        response = requests.get(full_url)
-        soup = BeautifulSoup(response.content, 'html.parser')
+        next_url = str(url).replace("index.html", next_button.find("a").get("href"))
+        response = requests.get(next_url)
+        page = response.content
+        soup = BeautifulSoup(page, 'html.parser')
 
         # récupérer les livres de la page
-        page_urls = get_books_from_page(soup)
+        page_urls = get_books_from_page(next_url)
         all_urls.extend(page_urls)
 
-        next_button = soup.find('li', {'class': 'next'})
-    
+        next_button = soup.find("li",{"class":"next"})
+
     return all_urls
+
+# Fonction pour recueillir toutes les urls des livres sur les pages categories
+def get_books_from_page(url):
+    response = requests.get(url)
+    page = response.content
+    soup = BeautifulSoup(page, "html.parser")
+    # trouver tous les éléments <a> avec la classe "book-link"
+    book_links = soup.find("div",{"class":"image_container"}).find_all_next("h3")
+
+    # extraire l'URL de chaque lien
+    book_urls = []
+    index_url = "http://books.toscrape.com/catalogue/"
+    for link in book_links:
+        link_found = link.find_next("a")["href"]
+        # concatenation des morceaux d'url et suppression des ../../../ pour eviter navigateur web
+        full_urls = index_url + link_found.replace("../../../", "") 
+        book_urls.append(full_urls) 
+    return book_urls
+
