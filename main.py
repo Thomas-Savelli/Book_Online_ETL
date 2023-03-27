@@ -23,7 +23,7 @@ if __name__ == '__main__':
         for book_url in books_urls:
             book_data = extract_book_data(book_url)
             all_books_data.append(book_data)
-
+           
         # création du dossier csv_data s'il n'existe pas déjà
         if not os.path.exists("csv_data"):
             os.mkdir("csv_data")
@@ -42,14 +42,15 @@ if __name__ == '__main__':
             # Écrire les données des livres dans le fichier CSV
             writer.writerows(all_books_data)    
 
-
+        # créer un fichier images_data si inexistant et télécharger les images de chaques livres
         if not os.path.exists('images_data'):
             os.mkdir("images_data")
-
+        # Boucle pour itérer sur chaques url de livre
         for book_data in all_books_data:
             image_url = book_data[-1]
-            title = book_data[2]
+            # titre images = upc car unique
+            title = book_data[1]
             image_data = requests.get(image_url).content
             
-            with open(f"images_data/{title}.jpg", "w") as f:
+            with open(f"images_data/{title}.jpg", "wb") as f:
                 f.write(image_data)
