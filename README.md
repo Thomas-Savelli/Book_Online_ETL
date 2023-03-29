@@ -5,7 +5,7 @@ Ce programme a pour objectif de faciliter la tâche de suivi des prix des livres
 
 ## **Pour commencer**
 
-Télécharger l’intégralité du repository sur : https://github.com/Thomas-Savelli/Book_Online_ETL.git 
+Télécharger l’intégralité du repository sur : https://github.com/Thomas-Savelli/Books_Online_ETL.git
 
 ### 1/ Pré-requis
 
@@ -57,6 +57,20 @@ Une fois le repository téléchargé et stocké localement :
     _ **csv_data** : contenant toutes les data scraper au format csv classées par catégorie  
     _ **images_data** : contenant toutes les images enregistrées des livres du site scraper 
   
+## **Lecture optimale des données csv**
+
+Dans l'optique où l'ouverture direct d'un fichier csv avec Microsoft Excel rendrait une lecture non optimale, merci d'utiliser cette procédure :
+
+- Ouvrir un tableur Excel vierge
+- Selectionner dans le menu >``Données > Données externes > Fichier texte``
+- Importer le fichier csv désiré
+- Puis dans l'assistant importation de texte sélectionner les configurations suivantes :
+
+        _ type de données d'origine (étape 1 sur 3) : Délimité
+        _ Séparateur (étape 2 sur 3) : Virgule
+        _ Format de données en colonne (étape 3 sur 3) : Standard
+        _ Puis cliquer sur Terminer et OK
+
 
 
 
