@@ -81,6 +81,7 @@ Dans l'optique où l'ouverture direct d'un fichier csv avec Microsoft Excel rend
 * BeautifulSoup4 - 4.12.0 - [*https://www.crummy.com/software/BeautifulSoup/*] - Screen-scraping library  
 * os - [*https://docs.python.org/fr/3/library/os.html?highlight=os#module-os*] - Diverses interfaces pour le système d'exploitation  
 * csv - [*https://docs.python.org/fr/3/library/csv.html?highlight=csv#module-csv*] - Lecture et écriture de fichiers CSV  
+* tqdm - [https://pypi.org/project/tqdm/] - indicateur de progression    
 * IDE - [*https://code.visualstudio.com/*] - Visual Studio Code     
 * PowerShell - [*https://learn.microsoft.com/fr-fr/powershell/scripting/overview?view=powershell-7.3*]  
 * GitHub - [*https://github.com/*]   

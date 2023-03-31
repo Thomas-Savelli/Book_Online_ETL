@@ -1,10 +1,6 @@
-# importation package py 
 import requests
 from bs4 import BeautifulSoup
 import csv 
-
-
-url_test = "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html"
 
 # Fonction qui permets d'extraire les données d'un livre sur une page produit 
 def extract_book_data(book_url):

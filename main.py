@@ -2,7 +2,8 @@ from fonctions import extract_book_data, get_url_categories, get_all_books_url
 import csv
 import os
 import requests
- 
+from tqdm import tqdm
+
 if __name__ == '__main__':
     
     en_tete = ["product_page_url","universal_product_code (upc)","title","price_including_tax",
@@ -15,15 +16,21 @@ if __name__ == '__main__':
     # la liste categorie_names contient les noms des categories pour une utilisation futur avec les fichiers csv 
     url_categories, categorie_names = get_url_categories(index_url)
    
+    # Initialiser la barre de progression générale pour execution complet du programme
+    general_progress_bar = tqdm(total=len(url_categories), desc="Running program")
+
     # Boucle pour trouver toutes les pages de livres dans les pages des categories
     for url in url_categories:
         books_urls = get_all_books_url(url)
+
 
         all_books_data = []
         for book_url in books_urls:
             book_data = extract_book_data(book_url)
             all_books_data.append(book_data)
-           
+ 
+        # Mettre à jour la barre de progression générale
+        general_progress_bar.update(1)
         # création du dossier csv_data s'il n'existe pas déjà
         if not os.path.exists("csv_data"):
             os.mkdir("csv_data")
@@ -54,3 +61,6 @@ if __name__ == '__main__':
             
             with open(f"images_data/{title}.jpg", "wb") as f:
                 f.write(image_data)
+
+    # Fermer la barre de progression générale une fois que l'exécution est terminée
+    general_progress_bar.close()
